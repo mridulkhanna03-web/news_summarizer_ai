@@ -30,9 +30,7 @@ except:
 # Initialize Flask app
 app = Flask(__name__)
 
-# ============================================================
-# LESSON 1: RSS Feed Parsing
-# ============================================================
+# RSS Feed Parsing
 # Google News provides RSS feeds that don't require API keys.
 # This is a common pattern used in production news aggregators.
 
@@ -117,8 +115,7 @@ def fetch_news(category='top', limit=10):
         return []
 
 
-# ============================================================
-# LESSON 2: Sentiment Analysis
+#  Sentiment Analysis
 # ============================================================
 # TextBlob provides simple sentiment analysis using a pre-trained model.
 # Polarity: -1 (negative) to +1 (positive)
@@ -152,8 +149,7 @@ def analyze_sentiment(text):
     }
 
 
-# ============================================================
-# LESSON 3: Keyword Extraction using TF-IDF
+#  Keyword Extraction using TF-IDF
 # ============================================================
 # TF-IDF (Term Frequency-Inverse Document Frequency) identifies
 # important words in a document. High TF-IDF = word is important to this doc.
@@ -189,8 +185,7 @@ def extract_keywords(text, num_keywords=5):
         return []
 
 
-# ============================================================
-# LESSON 4: Reading Time Calculation
+#  Reading Time Calculation
 # ============================================================
 # Average reading speed is ~200-250 words per minute.
 
@@ -206,8 +201,7 @@ def calculate_reading_time(text):
     return max(1, minutes)  # Minimum 1 minute
 
 
-# ============================================================
-# LESSON 5: Text Summarization
+# Text Summarization
 # ============================================================
 # We use a simple extractive approach here to avoid heavy model loading.
 # In production, you'd use BART or T5 models.
@@ -347,8 +341,7 @@ def api_news():
     return jsonify(news)
 
 
-# ============================================================
-# RUN THE APP
+# RUN THE APPLICATION
 # ============================================================
 
 if __name__ == '__main__':
