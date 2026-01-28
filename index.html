@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Summarizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Header */
+        .header {
+            padding: 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+        }
+
+        /* Category Tabs */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .category-btn:hover,
+        .category-btn.active {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-2px);
+        }
+
+        /* URL Input Section */
+        .url-input-section {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .url-form {
+            display: flex;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: transparent;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .url-input:focus {
+            outline: none;
+        }
+
+        .summarize-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .summarize-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* News Grid */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* News Card */
+        .news-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .news-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .news-source {
+            background: rgba(102, 126, 234, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .card-btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .card-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        /* Result Section */
+        .result-section {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.3rem;
+        }
+
+        /* Sentiment */
+        .sentiment-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .sentiment-emoji {
+            font-size: 2.5rem;
+        }
+
+        .sentiment-positive {
+            color: #4ade80;
+        }
+
+        .sentiment-negative {
+            color: #f87171;
+        }
+
+        .sentiment-neutral {
+            color: #fbbf24;
+        }
+
+        /* Keywords */
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .keyword-tag {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(102, 126, 234, 0.5);
+        }
+
+        /* Summary Box */
+        .summary-box {
+            background: rgba(102, 126, 234, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-box h4 {
+            margin-bottom: 0.8rem;
+            color: #667eea;
+        }
+
+        .summary-text {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Original Text */
+        .original-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .original-box h4 {
+            margin-bottom: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .original-text {
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Error */
+        .error-box {
+            background: rgba(248, 113, 113, 0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid #f87171;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .url-form {
+                flex-direction: column;
+                border-radius: 16px;
+            }
+
+            .url-input,
+            .summarize-btn {
+                border-radius: 12px;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>🚀 AI News Summarizer</h1>
+        <p>Get instant AI-powered summaries of any news article</p>
+    </header>
+
+    <!-- Category Tabs -->
+    <nav class="categories">
+        <a href="/?category=top" class="category-btn {% if category == 'top' %}active{% endif %}">🔥 Top Stories</a>
+        <a href="/?category=technology" class="category-btn {% if category == 'technology' %}active{% endif %}">💻
+            Technology</a>
+        <a href="/?category=business" class="category-btn {% if category == 'business' %}active{% endif %}">💼
+            Business</a>
+        <a href="/?category=science" class="category-btn {% if category == 'science' %}active{% endif %}">🔬 Science</a>
+        <a href="/?category=sports" class="category-btn {% if category == 'sports' %}active{% endif %}">⚽ Sports</a>
+    </nav>
+
+    <!-- URL Input -->
+    <section class="url-input-section">
+        <form class="url-form" action="/summarize" method="POST">
+            <input type="url" name="url" class="url-input" placeholder="Or paste any article URL here..." required>
+            <button type="submit" class="summarize-btn">Summarize ✨</button>
+        </form>
+    </section>
+
+    <!-- Result Section (shown after summarization) -->
+    {% if result %}
+    <section class="result-section">
+        <div class="result-card">
+            <h2 class="result-title">{{ result.title }}</h2>
+
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-value">{{ result.reading_time.original }} min</div>
+                    <div class="stat-label">Original Read Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ result.reading_time.summary }} min</div>
+                    <div class="stat-label">Summary Read Time</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ result.reading_time.saved }} min</div>
+                    <div class="stat-label">⚡ Time Saved</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ result.word_count.summary }}</div>
+                    <div class="stat-label">Summary Words</div>
+                </div>
+            </div>
+
+            <!-- Sentiment -->
+            <div class="sentiment-box">
+                <span class="sentiment-emoji">{{ result.sentiment.emoji }}</span>
+                <div>
+                    <strong class="sentiment-{{ result.sentiment.sentiment }}">
+                        {{ result.sentiment.sentiment|capitalize }} Tone
+                    </strong>
+                    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+                        Polarity: {{ result.sentiment.polarity }} | Subjectivity: {{ result.sentiment.subjectivity }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="keywords">
+                {% for keyword in result.keywords %}
+                <span class="keyword-tag">{{ keyword }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-box">
+                <h4>📝 AI Summary</h4>
+                <p class="summary-text">{{ result.summary }}</p>
+            </div>
+
+            <!-- Original -->
+            <div class="original-box">
+                <h4>📄 Original Article (Preview)</h4>
+                <p class="original-text">{{ result.original }}</p>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {% if error %}
+    <section class="result-section">
+        <div class="error-box">
+            <strong>⚠️ Error:</strong> {{ error }}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- News Grid -->
+    <main class="container">
+        <h2 class="section-title">📰 Latest News - Click to Summarize</h2>
+        <div class="news-grid">
+            {% for article in news %}
+            <article class="news-card">
+                <h3>{{ article.title }}</h3>
+                <div class="news-meta">
+                    <span class="news-source">{{ article.source }}</span>
+                    <span>{{ article.published[:16] }}</span>
+                </div>
+                <form action="/summarize" method="POST">
+                    <input type="hidden" name="url" value="{{ article.link }}">
+                    <button type="submit" class="card-btn">Summarize ✨</button>
+                </form>
+            </article>
+            {% endfor %}
+        </div>
+    </main>
+
+</body>
+
+</html>
